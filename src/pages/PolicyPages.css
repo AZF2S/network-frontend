@@ -1,0 +1,110 @@
+.policy-hero-img {
+  margin: 0px;
+  padding: 0px;
+  width: 100%;
+  height: 350px;
+}
+
+.policy-hero-img > h1 {
+  font-family: Kindest Reality;
+  font-size: 40px;
+  position: relative;
+  top: calc(100% - 110px);
+  left: 8vw;
+  margin: 0px;
+  width: fit-content;
+  padding: 10px 15px 10px 15px;
+  border-radius: 14px;
+  color: #fff;
+}
+
+.priv-img {
+  background-image: url("./img/contact-list-hero-img.png");
+  background-size: cover;
+  background-position: 50% 50%;
+}
+
+.priv-img > h1 {
+  background-color: #a1762b;
+}
+
+.tos-img {
+  background-image: url("./img/contact-list-hero-img.png");
+  background-size: cover;
+  background-position: 50% 50%;
+}
+
+.tos-img > h1 {
+  background-color: #a1762b;
+}
+
+.acc-img {
+  background-image: url("./img/contact-list-hero-img.png");
+  background-size: cover;
+  background-position: 50% 50%;
+}
+
+.acc-img > h1 {
+  background-color: #a1762b;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  justify-content: left;
+  margin: 25px 15% 25px 15%;
+}
+
+/* Revised CSS for .body and .policy-page classes to ensure text is black */
+.body, .policy-page {
+  color: black; /* This ensures text within .body and .policy-page is black */
+}
+
+.body > h2 {
+  font-family: Trade Gothic Bold Condensed;
+  color: #7a3c5f;
+  font-size: 28px;
+}
+
+.policy-page a {
+  color: #568571;
+  padding: 10px 0 10px 0;
+  text-decoration: underline;
+}
+
+.policy-page a:hover {
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.body ul {
+  margin: 0px;
+}
+
+.body li {
+  margin: 10px;
+}
+
+@media screen and (max-width: 600px) {
+  .body {
+    margin: 25px 5% 25px 5%;
+  }
+}
+
+@media screen and (max-width: 470px) {
+  .policy-hero-img > h1 {
+    font-size: 34px;
+  }
+}
+
+@media screen and (max-width: 375px) {
+  .policy-hero-img > h1 {
+    font-size: 30px;
+  }
+}
+
+@media screen and (max-width: 330px) {
+  .policy-hero-img > h1 {
+    font-size: 28px;
+  }
+}

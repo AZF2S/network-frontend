@@ -1,0 +1,10 @@
+.link {
+    margin-top: -5px;
+    color: rgb(94, 97, 123);   
+    text-decoration: underline;
+    font-style: italic;
+}
+
+.link:visited {
+    color: rgb(94, 97, 123);
+} 

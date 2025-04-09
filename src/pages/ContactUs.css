@@ -1,0 +1,228 @@
+.contact-us-hero-img {
+  margin: 0px;
+  padding: 0px;
+  background-image: url("./img/contact-us-hero-img.png");
+  width: 100%;
+  height: 200px;
+  background-size: cover;
+  background-position: 50% 50%;
+}
+
+.contact-us-hero-img > h1 {
+  font-family: Kindest Reality;
+  font-size: 40px;
+  font-weight: normal;
+  position: relative;
+  top: calc(100% - 110px);
+  left: 8vw;
+  margin: 0px;
+  width: fit-content;
+  background-color: #5e617b;
+  padding: 10px 15px 10px 15px;
+  border-radius: 14px;
+  color: #fff;
+}
+
+.description-section-contact {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin: 50px 8vw 50px 8vw;
+  background-color: #568571;
+  overflow: hidden;
+  border-radius: 14px;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.description-section-left {
+  width: 45vw;
+  margin-right: 6vw;
+  padding: 25px;
+  color: white;
+}
+
+.description-section-left span {
+  text-decoration: underline;
+}
+
+.description-section-left span:hover {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.description-section-left > h2 {
+  font-family: Kindest Reality;
+  font-size: 35px;
+  font-weight: normal;
+}
+
+.description-section-left p {
+  font-size: 1.25em;
+}
+
+.description-section-right {
+  background-image: url("./img/contact-us-description-img.png");
+  background-position: 25% 0%;
+  background-size: cover;
+  width: 45vw;
+  height: auto;
+}
+
+.form-section {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin: 25px 8vw 50px 8vw;
+  background-color: #a1762b;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.form-section-left {
+  background-image: url("./img/contact-us-form-img.png");
+  background-size: cover;
+  width: 30vw;
+  background-position: 0% 50%;
+  height: auto;
+}
+
+.form-section-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 25px;
+  width: 56vw;
+}
+
+.form-section-right > h2 {
+  font-family: Kindest Reality;
+  font-size: 35px;
+  font-weight: normal;
+  color: #fff;
+}
+
+.form-questions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 25px;
+  width: 90%;
+}
+
+.form-item label {
+  color: #fff;
+  font-family: Trade Gothic Bold Condensed;
+  font-size: larger;
+}
+
+.form-item input[type="text"] {
+  width: 100%;
+  height: 40px;
+  border: none;
+  border-radius: 7px;
+  padding-left: 10px;
+  padding-top: 3px;
+  font-size: 20px;
+  font-family: Trade Gothic Bold Condensed;
+}
+
+.form-item input[type="email"] {
+  width: 100%;
+  height: 40px;
+  border: none;
+  border-radius: 7px;
+  padding-left: 10px;
+  padding-top: 3px;
+  font-size: 20px;
+  font-family: Trade Gothic Bold Condensed;
+}
+
+.form-item textarea {
+  width: 100%;
+  border: none;
+  border-radius: 7px;
+  height: 175px;
+  padding: 10px;
+  font-size: 20px;
+  font-family: Trade Gothic Bold Condensed;
+}
+
+.large-btn {
+  width: 180px;
+  height: 50px;
+  border-radius: 8px;
+  border: 2.5px solid #fff;
+  background-color: #fff;
+  transition: 0.4s;
+  box-shadow: 3px 5px 5px #00000032;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.regular-btn-brown {
+  color: #a1762b;
+}
+
+.regular-btn-brown:hover {
+  background-color: #a1762b;
+  color: #fff;
+}
+
+@media screen and (max-width: 900px) {
+  .description-section-right {
+    height: 300px;
+    width: 100%;
+    background-position: 50% 20%;
+  }
+
+  .description-section-left {
+    width: 100%;
+  }
+
+  .description-section-left p {
+    padding: 0;
+    margin: 0;
+  }
+
+  .description-section-contact {
+    flex-direction: column;
+  }
+}
+
+@media screen and (max-width: 800px) {
+  .form-section-left {
+    width: 0%;
+  }
+
+  .form-section {
+    background-image: url("./img/contact-us-form-img.png");
+    background-size: cover;
+  }
+
+  .form-section-right {
+    width: 100%;
+    background-color: #a1762b;
+    margin: 25px;
+    border-radius: 14px;
+  }
+}
+
+@media screen and (max-width: 550px) {
+  .form-section-right {
+    padding: 5px 5px 25px 5px;
+  }
+}
+
+@media screen and (max-width: 376px) {
+  .form-section-right {
+    margin: 10px;
+  }
+}
