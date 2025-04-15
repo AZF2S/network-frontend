@@ -242,7 +242,7 @@ const Navbar = (props) => {
     const fetchData = async () => {
       if (user) {
         try {
-          const notifications = await accountApi.getNotifications();
+          const notifications = await accountApi.getNotifications(); // TODO error handling
           if (user.recentlyverified) {
             setNotifications({
               ...notifications,
@@ -309,7 +309,7 @@ const Navbar = (props) => {
   useEffect(() => {
     const fetchRemainingSteps = async () => {
       try {
-        const steps = await accountApi.getRemainingSteps();
+        const steps = await accountApi.getRemainingSteps(); // TODO error handling
         setRemainingSteps(steps);
       } catch (error) {
         console.error("Error fetching remaining steps:", error);

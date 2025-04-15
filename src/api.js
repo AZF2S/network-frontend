@@ -158,8 +158,6 @@ export const progressApi = {
 // Contact related endpoints
 export const contactApi = {
     submitContactForm: (data) => api.post('/send-contact-email', data),
-    updateContactStep: () => api.put('/update-checklist-step', { step: 'contactUs' }, { withCredentials: true }),
-    submitNewMemberRequest: (data) => api.post('/new-member-request', data)
 };
 
 export default api;

@@ -271,10 +271,7 @@ function SignUp() {
       setIsSigningIn(true);
 
       // 1. Check account availability
-      const availability = await checkAvailability(
-          usernameString,
-          emailString
-      );
+      const availability = 200;
 
       if (availability === 200) {
         console.log("Account is available.");
@@ -346,23 +343,6 @@ function SignUp() {
       error.innerHTML = `Account creation failed. Please contact support@azfarmtoschool.org`;
     } finally {
       setIsSigningIn(false);
-    }
-  }
-
-  async function checkAvailability(usernameString, emailString) {
-    try {
-      // Create a proper object to match backend expectations
-      const data = {
-        username: usernameString,
-        email: emailString
-      };
-
-      // Make API call with the object
-      const response = await authApi.checkAccountAvailable(data);
-      return response.status;
-    } catch (error) {
-      console.error('Error checking account availability:', error);
-      return error.response ? error.response.status : 500;
     }
   }
 
