@@ -374,6 +374,8 @@ function SignUp() {
         password,
         email
       });
+      console.log(response);
+      console.log(response.data);
 
       if (!response || !response.data) {
         console.error('Sign up response is invalid:', response);
@@ -381,7 +383,6 @@ function SignUp() {
         return null;
       }
 
-      console.log(response.data);
       return response.data;
     } catch (error) {
       console.error('Error creating account:', error);
