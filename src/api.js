@@ -57,7 +57,7 @@ export const authApi = {
     login: (credentials) => api.post('/user/login', credentials),
     logout: () => api.post('/user/logout'),
     signUp: (userData) => api.post('/user/sign-up', userData),
-    checkAccountAvailable: (data) => api.post('/user/is-account-available', data),
+    checkAccountAvailable: (data) => api.post('/user/is-available', data),
     sendNewUserEmail: (data) => api.post('/user/new-user-email', data),
     updateNewUser: (data) => api.put('/user/new-user', data)
 };
