@@ -286,7 +286,7 @@ function SignUp() {
             emailString
         );
 
-        if (signUpResponse && signUpResponse.uid && signUpResponse.uid > 1) {
+        if (signUpResponse && signUpResponse.response.uid && signUpResponse.response.uid > 1) {
           console.log("Account created successfully.");
 
           // 3. Log the user into their account
@@ -296,7 +296,7 @@ function SignUp() {
 
             // 4. Add custom fields to their account object
             const customObjectResponse = await upsertCustomFields(
-                signUpResponse.uid,
+                signUpResponse.response.uid,
                 nameString,
                 emailString,
                 newsletterCheckbox.checked
@@ -332,6 +332,7 @@ function SignUp() {
         } else {
           // NodeBB signup failed
           error.style.visibility = "visible";
+          console.log(signUpResponse);
           error.innerHTML = "Account creation failed. Please try again in a few minutes, or contact support@azfarmtoschool.org if issues persist.";
         }
       } else {
