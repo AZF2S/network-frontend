@@ -1,161 +1,156 @@
 import axios from 'axios';
 import config from './config';
 
-// Create base API instance
+// Storage keys
+const USER_STORAGE_KEY = 'userData';
+const CSRF_TOKEN_KEY = 'csrfToken';
+
+// Base API - no credentials by default
 const api = axios.create({
     baseURL: `${config.PROTOCOL}${config.DOMAIN}${config.EXPRESS_PATH}`,
-    withCredentials: true,  // This is crucial for cookies
+    withCredentials: false,
     headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-cache' // Prevent caching of authenticated requests
+        'Cache-Control': 'no-cache'
     }
 });
 
-// Fix double proxy route issue
-api.interceptors.request.use(
-    reqConfig => {
-        const expressPath = config.EXPRESS_PATH;
-
-        // Check if URL has duplicated base path
-        if (reqConfig.url && reqConfig.url.startsWith(expressPath + expressPath)) {
-            // Replace double occurrence with single
-            const fixedUrl = expressPath + reqConfig.url.substring((expressPath + expressPath).length);
-            console.log(`Fixing double path: ${reqConfig.url} → ${fixedUrl}`);
-            reqConfig.url = fixedUrl;
-        }
-
-        reqConfig.withCredentials = true;
-        return reqConfig;
-    },
-    error => Promise.reject(error)
-);
-
-// Ensure credentials are always sent
-api.interceptors.request.use(
-    config => {
-        config.withCredentials = true;
-        return config;
-    },
-    error => Promise.reject(error)
-);
-
-// Handle authentication errors
-api.interceptors.response.use(
-    response => response,
-    error => {
-        if (error.response && error.response.status === 401) {
-            localStorage.removeItem('user');
-        }
-        return Promise.reject(error);
+// Authenticated API - always sends credentials and CSRF
+const authenticatedApi = axios.create({
+    baseURL: `${config.PROTOCOL}${config.DOMAIN}${config.EXPRESS_PATH}`,
+    withCredentials: true,
+    headers: {
+        'Cache-Control': 'no-cache'
     }
-);
+});
+authenticatedApi.interceptors.request.use(config => {
+    const csrfToken = localStorage.getItem(CSRF_TOKEN_KEY);
+    if (csrfToken) {
+        config.headers['X-CSRF-Token'] = csrfToken;
+    }
+    return config;
+});
 
-// Authentication related endpoints - Updated to match backend API expectations
+// Auth-related endpoints
 export const authApi = {
-    getCurrentUser: () => api.get('/user', { withCredentials: true }),
-    isAdmin: () => api.get('/isAdmin', { withCredentials: true }),
-    login: (credentials) => api.post('/user/login', credentials),
-    logout: () => api.post('/user/logout'),
+    // Special case: needs credentials to receive cookie but isn't validated yet
+    login: async (credentials) => {
+        const response = await api.post('/user/login', credentials, { withCredentials: true });
+        if (response.data.success) {
+            const { csrfToken, ...userData } = response.data.user;
+            localStorage.setItem(CSRF_TOKEN_KEY, csrfToken);
+            localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
+        }
+        return response;
+    },
+    getCurrentUser: () => {
+        const user = JSON.parse(localStorage.getItem(USER_STORAGE_KEY));
+        return authenticatedApi.get(`/user/${user?.uid}`);
+    },
+    isAdmin: () => authenticatedApi.get('/isAdmin'),
+    logout: () => authenticatedApi.post('/user/logout').then(() => {
+        localStorage.removeItem(CSRF_TOKEN_KEY);
+        localStorage.removeItem(USER_STORAGE_KEY);
+    }),
     signUp: (userData) => api.post('/user/sign-up', userData),
     checkAccountAvailable: (data) => api.post('/user/is-available', data),
     sendNewUserEmail: (data) => api.post('/user/new-user-email', data),
     updateNewUser: (data) => api.put('/user/new-user', data)
 };
 
-// Map related endpoints
+// Map related endpoints - public
 export const mapApi = {
     getMapData: () => api.get('/map-data'),
     getOrganizationMembers: (orgId) => api.post('/get-organization-members', { orgId })
 };
 
-// Account related endpoints
+// Account related endpoints - all protected
 export const accountApi = {
-    updateUser: (updateData) => api.put('/user', updateData),
-    getUserChats: () => api.get(`${config.NODEBB_URL}/api/v3/chats`),
-    getUserTopics: (userslug) => api.get(`${config.NODEBB_URL}/api/user/${userslug}/topics`),
-    getUserProfile: (userslug) => api.get(`${config.NODEBB_URL}/api/user/${userslug}`),
-    logout: () => api.get('/logout'),
-    getChatMessages: (roomId) => api.get(`${config.NODEBB_URL}/api/v3/chats/${roomId}/messages`),
-    getNotifications: () => api.get('/notifications'),
-    getUserProfilePicture: (userslug) => api.get(`${config.NODEBB_URL}/api/user/${userslug}/picture`),
-    getUserOrganizations: () => api.get('/verified-organizations'),
-    getPendingMembers: () => api.get('/pending-members'),
-    getRemainingSteps: () => api.get('/user-checklist'),
-    updateRecentlyVerified: (value) => api.put('/update-recently-verified', { value }),
-    getUserSettings: () => api.get('/user-settings'),
-    updateUserSettings: (data) => api.put('/user-settings', data),
-    submitForm: (user) => api.put('/submit-form', { user }),
-    renewMembership: (user) => api.put('/renew-membership', { user }),
-    deleteMembership: () => api.put('/delete-membership')
+    updateUser: (updateData) => authenticatedApi.put('/user', updateData),
+    getUserChats: () => authenticatedApi.get(`${config.NODEBB_URL}/api/v3/chats`),
+    getUserTopics: (userslug) => authenticatedApi.get(`${config.NODEBB_URL}/api/user/${userslug}/topics`),
+    getUserProfile: (userslug) => authenticatedApi.get(`${config.NODEBB_URL}/api/user/${userslug}`),
+    logout: () => authApi.logout(),
+    getChatMessages: (roomId) => authenticatedApi.get(`${config.NODEBB_URL}/api/v3/chats/${roomId}/messages`),
+    getNotifications: () => authenticatedApi.get('/notifications'),
+    getUserProfilePicture: (userslug) => authenticatedApi.get(`${config.NODEBB_URL}/api/user/${userslug}/picture`),
+    getUserOrganizations: () => authenticatedApi.get('/verified-organizations'),
+    getPendingMembers: () => authenticatedApi.get('/pending-members'),
+    getRemainingSteps: () => authenticatedApi.get('/user-checklist'),
+    updateRecentlyVerified: (value) => authenticatedApi.put('/update-recently-verified', { value }),
+    getUserSettings: () => authenticatedApi.get('/user-settings'),
+    updateUserSettings: (data) => authenticatedApi.put('/user-settings', data),
+    submitForm: (user) => authenticatedApi.put('/submit-form', { user }),
+    renewMembership: (user) => authenticatedApi.put('/renew-membership', { user }),
+    deleteMembership: () => authenticatedApi.put('/delete-membership')
 };
 
-// Resources related endpoints
+// Resources related endpoints - public
 export const resourcesApi = {
     getResources: () => api.get('/resources'),
     fetchHeaders: (fetchedResources) => api.post('/fetch-headers', { fetchedResources }),
     submitResource: (data) => api.post('/submit-resource', data)
 };
 
-// FAQ related endpoints
+// FAQ related endpoints - public
 export const faqApi = {
     getFaqData: () => api.get('/faq')
 };
 
-// About related endpoints
+// About related endpoints - public
 export const aboutApi = {
     getBios: () => api.get('/about')
 };
 
-// User tags related endpoints
+// Tags related endpoints - public
 export const tagsApi = {
     getLocationFilters: () => api.get('/location-filters')
 };
 
-// Communities of practice related endpoints
+// Communities of practice related endpoints - public
 export const copApi = {
     getCommunities: () => api.get('/communities-of-practice')
 };
 
-// Organization related endpoints
+// Organization related endpoints - all protected
 export const organizationApi = {
-    getOrganizations: () => api.get('/organizations'),
-    addOrganization: (data) => api.post('/add-organization', data),
-    editOrganization: (data) => api.put('/edit-organization', data),
-    acceptOrganization: (data) => api.put('/accept-organization', data),
-    denyOrganization: (data) => api.put('/deny-organization', data),
-    removeMember: (data) => api.put('/remove-member', data),
-    getPendingOrganizations: () => api.get('/pending-organizations'),
-    getVerifiedOrganizations: () => api.get('/verified-organizations'),
-    getUserOrgs: (orgs) => api.post('/user-orgs', orgs)
+    getOrganizations: () => authenticatedApi.get('/organizations'),
+    addOrganization: (data) => authenticatedApi.post('/add-organization', data),
+    editOrganization: (data) => authenticatedApi.put('/edit-organization', data),
+    acceptOrganization: (data) => authenticatedApi.put('/accept-organization', data),
+    denyOrganization: (data) => authenticatedApi.put('/deny-organization', data),
+    removeMember: (data) => authenticatedApi.put('/remove-member', data),
+    getPendingOrganizations: () => authenticatedApi.get('/pending-organizations'),
+    getVerifiedOrganizations: () => authenticatedApi.get('/verified-organizations'),
+    getUserOrgs: (orgs) => authenticatedApi.post('/user-orgs', orgs)
 };
 
-// Admin related endpoints
+// Admin related endpoints - all protected
 export const adminApi = {
-    getPendingOrganizations: () => api.get('/pending-organizations'),
-    getPendingMembers: () => api.get('/pending-members'),
-    getVerifiedMembers: () => api.get('/verified-members'),
-    acceptMembership: (data) => api.put('/accept-membership', data),
-    denyMembership: (data) => api.put('/deny-membership', data),
-    getGroupColors: () => api.get('/group-colors'),
-    getContactListUsers: () => api.post('/contact-list-users', {})
+    getPendingOrganizations: () => authenticatedApi.get('/pending-organizations'),
+    getPendingMembers: () => authenticatedApi.get('/pending-members'),
+    getVerifiedMembers: () => authenticatedApi.get('/verified-members'),
+    acceptMembership: (data) => authenticatedApi.put('/accept-membership', data),
+    denyMembership: (data) => authenticatedApi.put('/deny-membership', data),
+    getGroupColors: () => authenticatedApi.get('/group-colors'),
+    getContactListUsers: () => authenticatedApi.post('/contact-list-users', {})
 };
 
-// Forum related endpoints
+// Forum related endpoints - all protected
 export const forumApi = {
-    getConfig: () => api.get(`${config.NODEBB_URL}/api/config`),
-    updateSettings: (data) => api.put(`${config.NODEBB_URL}/api/v3/users/${data.uid}`, data),
-    createChatRoom: (data) => api.post(`${config.NODEBB_URL}/api/v3/chats`, data),
-    sendMessage: (roomId, message) => api.post(`${config.NODEBB_URL}/api/v3/chats/${roomId}`, { message }),
-    leaveChatRoom: (roomId, data) => api.delete(`${config.NODEBB_URL}/api/v3/chats/${roomId}/users`, { data })
+    getConfig: () => authenticatedApi.get(`${config.NODEBB_URL}/api/config`),
+    updateSettings: (data) => authenticatedApi.put(`${config.NODEBB_URL}/api/v3/users/${data.uid}`, data),
+    createChatRoom: (data) => authenticatedApi.post(`${config.NODEBB_URL}/api/v3/chats`, data),
+    sendMessage: (roomId, message) => authenticatedApi.post(`${config.NODEBB_URL}/api/v3/chats/${roomId}`, { message }),
+    leaveChatRoom: (roomId, data) => authenticatedApi.delete(`${config.NODEBB_URL}/api/v3/chats/${roomId}/users`, { data })
 };
 
-// User progress related endpoints
+// Progress related endpoints - all protected
 export const progressApi = {
-    getUserChecklist: () => api.get('/user-checklist'),
-    updateChecklistStep: (step) => api.put('/update-checklist-step', { step }, { withCredentials: true })
+    getUserChecklist: () => authenticatedApi.get('/user-checklist'),
+    updateChecklistStep: (step) => authenticatedApi.put('/update-checklist-step', { step })
 };
 
-// Contact related endpoints
+// Contact related endpoints - public
 export const contactApi = {
     submitContactForm: (data) => api.post('/send-contact-email', data),
 };
