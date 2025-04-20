@@ -6,7 +6,6 @@ import Calendar from "./pages/Calendar";
 import ContactUs from "./pages/ContactUs";
 import Faq from "./pages/Faq";
 import Forum from "./pages/Forum";
-import GettingStartedPage from "./pages/GettingStarted";
 import Home from "./pages/Home";
 import Map from "./pages/Map";
 import Resources from "./pages/Resources";
@@ -83,7 +82,6 @@ function App() {
               <Route path="/contact-us" element={<ContactUs />} />
               <Route path="/faq" element={<Faq />} />
               <Route path="/forum" element={<IsMemberGuard user={user} uri="/forum"><Forum /></IsMemberGuard>} />
-              <Route path="/getting-started" element={<GettingStartedPage />} />
               <Route path="/map" element={<Map />} />
               <Route path="/resources" element={<Resources />} />
               <Route path="/search" element={<Search />} />
