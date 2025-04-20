@@ -6,8 +6,6 @@ import {
   DialogTitle,
   Divider,
 } from "@mui/material";
-import { useNavigate } from "react-router";
-import { SecondaryButton } from "../SecondaryButton";
 import Confetti from "react-confetti";
 import { useEffect } from "react";
 import { useState } from "react";

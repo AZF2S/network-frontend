@@ -1,4 +1,3 @@
-import { Brightness1 } from "@mui/icons-material";
 import { Button, styled } from "@mui/material";
 
 const CustomButton = styled(Button)({

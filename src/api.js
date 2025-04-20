@@ -75,7 +75,6 @@ export const accountApi = {
     getUserProfilePicture: (userslug) => authenticatedApi.get(`${config.NODEBB_URL}/api/user/${userslug}/picture`),
     getUserOrganizations: () => authenticatedApi.get('/verified-organizations'),
     getPendingMembers: () => authenticatedApi.get('/pending-members'),
-    getRemainingSteps: () => authenticatedApi.get('/user-checklist'),
     updateRecentlyVerified: (value) => authenticatedApi.put('/update-recently-verified', { value }),
     getUserSettings: () => authenticatedApi.get('/user-settings'),
     updateUserSettings: (data) => authenticatedApi.put('/user-settings', data),
@@ -142,12 +141,6 @@ export const forumApi = {
     createChatRoom: (data) => authenticatedApi.post(`${config.NODEBB_URL}/api/v3/chats`, data),
     sendMessage: (roomId, message) => authenticatedApi.post(`${config.NODEBB_URL}/api/v3/chats/${roomId}`, { message }),
     leaveChatRoom: (roomId, data) => authenticatedApi.delete(`${config.NODEBB_URL}/api/v3/chats/${roomId}/users`, { data })
-};
-
-// Progress related endpoints - all protected
-export const progressApi = {
-    getUserChecklist: () => authenticatedApi.get('/user-checklist'),
-    updateChecklistStep: (step) => authenticatedApi.put('/update-checklist-step', { step })
 };
 
 // Contact related endpoints - public

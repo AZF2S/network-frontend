@@ -377,10 +377,6 @@ const Navbar = (props) => {
     }
   };
 
-  const goToGettingStarted = () => {
-    navigate("/getting-started");
-  };
-
   const updateRecentlyVerified = async (value) => {
     try {
       await accountApi.updateRecentlyVerified(value);
@@ -494,8 +490,6 @@ const Navbar = (props) => {
                 ? goToProfile
                 : title === "Admin Panel"
                 ? goToAdminPanel
-                : title === "Getting Started"
-                ? goToGettingStarted
                 : goToMessages
             }
             sx={{ columnGap: "10px", justifyContent: "space-between" }}

@@ -17,7 +17,6 @@ import {
   Box,
 } from "@mui/material";
 import { userGroups } from "../utils/constants";
-import config from "../config";
 
 function ContactList() {
   const [contactList, set_contactList] = useState([]);
@@ -38,30 +37,10 @@ function ContactList() {
   });
   const [groupColors, setGroupColors] = useState();
 
-  let proxyURL = ``;
-
-  useEffect(() => {
-    const updateChecklistStep = async () => {
-      try {
-        await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait for 1 second
-        const response = await api.put(
-          proxyURL + "/update-checklist-step",
-          { step: "exploreContactList" },
-          { withCredentials: true }
-        );
-        console.log("Checklist step updated:", response.data);
-      } catch (error) {
-        console.error("Error updating checklist step:", error);
-      }
-    };
-  
-    updateChecklistStep();
-  }, []);
-
   useEffect(() => {
     window.scroll(0, 0);
 
-    api.post(proxyURL + "/contact-list-users", {}).then((response) => {
+    api.post("/contact-list-users", {}).then((response) => {
       set_contactList(JSON.parse(response.data.response));
       setMasterList(JSON.parse(response.data.response));
     });
@@ -74,7 +53,7 @@ function ContactList() {
   useEffect(() => {
     const fetchGroupColors = async () => {
       try {
-        const response = await api.get(proxyURL + "/group-colors", {
+        const response = await api.get("/group-colors", {
           withCredentials: false,
         });
 

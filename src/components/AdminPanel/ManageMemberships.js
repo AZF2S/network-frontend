@@ -40,13 +40,7 @@ function ManageMemberships() {
 
   useEffect(() => {
     let filtered = members;
-    // if (sortMethod === "alphabetical") {
-    //   filtered = filtered.sort((a, b) => a.fullname.localeCompare(b.name));
-    // } else if (sortMethod === "membershipDate") {
-    //   filtered = filtered.sort(
-    //     (a, b) => new Date(a.joinDate) - new Date(b.joinDate)
-    //   );
-    // }
+
     filtered = filtered.filter(
       (member) =>
         member.fullname.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -54,7 +48,7 @@ function ManageMemberships() {
     );
     setCurrentPage(1); // Reset to page 1 after sorting or searching
     setMembers(filtered);
-  }, [searchTerm, sortMethod]);
+  }, [searchTerm, sortMethod, members]);
 
   const handleRevoke = async (userId) => {
     try {

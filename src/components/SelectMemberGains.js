@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   Chip,
   Box,
@@ -6,33 +6,9 @@ import {
   FormControl,
   InputLabel,
   Select,
-  OutlinedInput,
-  Tooltip,
-  styled,
   FormHelperText,
   TextField,
 } from "@mui/material";
-
-const CustomSelect = styled(Select)({
-  "& .MuiInputLabel-root": {
-    color: "#B55B2C",
-    "&.Mui-focused": {
-      color: "#B55B2C",
-    },
-  },
-  "&.MuiOutlinedInput-root": {
-    "&.Mui-focused fieldset": {
-      borderColor: "#B55B2C",
-      color: "#B55B2C",
-    },
-  },
-});
-
-const CustomInputLabel = styled(InputLabel)({
-  "&.Mui-focused": {
-    color: "#B55B2C",
-  },
-});
 
 export default function SelectMemberGains({
   selectedTags,

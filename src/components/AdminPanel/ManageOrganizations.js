@@ -45,7 +45,7 @@ const ManageOrganizations = () => {
     );
     setCurrentPage(1); // Reset to page 1 after searching
     setOrganizations(filtered);
-  }, [searchTerm]);
+  }, [searchTerm, organizations]);
 
   useEffect(() => {
     if (selectedOrg) {

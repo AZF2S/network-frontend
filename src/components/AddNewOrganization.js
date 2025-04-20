@@ -190,7 +190,7 @@ useAuth();
                   })
                 }
               >
-                <img src={foodEducator} className="w-10" />
+                <img src={foodEducator} className="w-10" alt="Food Educator" />
                 <div className="text-sm">Food Education</div>
               </div>
               <div
@@ -198,7 +198,7 @@ useAuth();
                   orgInvolvements.gardenEducation
                     ? "border-sage"
                     : "border-sage/0 hover:border-sage/50"
-                } transition-border-opacity duration-300 flex inline-flex gap-x-1 items-center cursor-pointer p-1 border-3 border-solid rounded-lg`}
+                } transition-border-opacity duration-300 flex gap-x-1 items-center cursor-pointer p-1 border-3 border-solid rounded-lg`}
                 onClick={() =>
                   setOrgInvolvements({
                     ...orgInvolvements,
@@ -206,7 +206,7 @@ useAuth();
                   })
                 }
               >
-                <img src={gardenEducator} className="w-10" />
+                <img src={gardenEducator} className="w-10" alt="Garden Educator"/>
                 <div className="text-sm">Garden Education</div>
               </div>
               <div
@@ -222,7 +222,7 @@ useAuth();
                   })
                 }
               >
-                <img src={procurement} className="w-10" />
+                <img src={procurement} className="w-10" alt="Procurement"/>
                 <div className="text-sm">Procurement</div>
               </div>
               <SelectMapTags

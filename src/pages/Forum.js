@@ -2,7 +2,6 @@ import { useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import "./forum.css";
 import ".././config";
-import { progressApi } from "../api";
 import config from "../config";
 
 const forumApiRoot = `${config.PROTOCOL}forum.${config.DOMAIN_NO_HTTPS}`;
@@ -18,20 +17,6 @@ function Forum() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
-
-  useEffect(() => {
-    const updateChecklistStep = async () => {
-      try {
-        await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait for 1 second
-        await progressApi.updateChecklistStep("communityForum");
-        console.log("Checklist step updated successfully");
-      } catch (error) {
-        console.error("Error updating checklist step:", error);
-      }
-    };
-  
-    updateChecklistStep();
   }, []);
 
   useEffect(() => {

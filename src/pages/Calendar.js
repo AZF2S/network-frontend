@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import './Calendar.css';
-import { progressApi } from "../api";
 
 function Calendar() {
   useEffect(() => {
@@ -25,17 +24,6 @@ function Calendar() {
       document.body.removeChild(mainScript);
       document.body.removeChild(embedScript);
     };
-  }, []);
-
-  useEffect(() => {
-    const updateChecklist = async () => {
-      try {
-        await progressApi.updateChecklistStep("eventsCalendar");
-      } catch (error) {
-        console.error("Error updating checklist:", error);
-      }
-    };
-    updateChecklist();
   }, []);
 
   return (

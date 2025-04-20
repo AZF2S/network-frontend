@@ -7,7 +7,6 @@ import {
   InputLabel,
   Select,
   Tooltip,
-  styled,
 } from "@mui/material";
 import '.././config';
 import { tagsApi } from '../api';
@@ -38,12 +37,6 @@ function TooltipMenuItem({ value, tooltipTitle, children, ...props }) {
     </Tooltip>
   );
 }
-
-const CustomInputLabel = styled(InputLabel)({
-  "&.Mui-focused": {
-    color: "#B55B2C",
-  },
-});
 
 export default function SelectUserTags({ selectedTags, setSelectedTags }) {
   const [userTags, setUserTags] = useState([]);

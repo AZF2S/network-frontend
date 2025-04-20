@@ -83,7 +83,7 @@ export default function AdminPanel() {
       fetchPendingMembers();
       fetchPendingOrgs();
     }
-  }, [isAdmin]);
+  }, [isAdmin, navigate]);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);

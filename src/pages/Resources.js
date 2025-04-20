@@ -25,7 +25,7 @@ import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import noPreview from "../assets/resources/no-preview.png";
 import CircularProgress from "@mui/material/CircularProgress";
 import '.././config';
-import { resourcesApi, progressApi } from '../api';
+import { resourcesApi } from '../api';
 
 function Resources() {
   const [resources, setResources] = useState();
@@ -71,20 +71,6 @@ function Resources() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
-
-  useEffect(() => {
-    const updateChecklistStep = async () => {
-      try {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        await progressApi.updateChecklistStep("resourceLibrary");
-        console.log("Checklist step updated successfully");
-      } catch (error) {
-        console.error("Error updating checklist step:", error);
-      }
-    };
-  
-    updateChecklistStep();
   }, []);
 
   useEffect(() => {

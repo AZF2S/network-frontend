@@ -36,7 +36,7 @@ import SelectMapTags from "../components/SelectMapTags";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useDialog } from "../utils/DialogProvider";
-import { mapApi, progressApi } from '../api';
+import { mapApi } from '../api';
 import config from "../config";
 
 // Constants
@@ -227,19 +227,6 @@ useEffect(() => {
 
 useEffect(() => {
   window.scrollTo(0, 0);
-}, []);
-
-useEffect(() => {
-  const updateChecklistStep = async () => {
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      await progressApi.updateChecklistStep("exploreNetworkMap");
-      console.log("Checklist step updated successfully");
-    } catch (error) {
-      console.error("Error updating checklist step:", error);
-    }
-  };
-  updateChecklistStep();
 }, []);
 
 useEffect(() => {

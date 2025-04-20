@@ -21,7 +21,7 @@ function ContactCard({ user, groupColors }) {
   const [backgroundGradient, setBackgroundGradient] = useState("#ddd");
   const [color, set_color] = useState("#ddd");
   const [orgElements, setOrgElements] = useState([]);
-  const [groupDefaultPictures, setGroupDefaultPictures] = useState({
+  const [groupDefaultPictures] = useState({
     Farmer: farmerPic,
     Gardener: gardenerPic,
     Educator: educatorPic,
@@ -99,8 +99,6 @@ function ContactCard({ user, groupColors }) {
     if (user.picture) {
       setPicture(user.picture);
     } else {
-      const groupDefaultPicturesArray = Object.values(groupDefaultPictures);
-
       // get random picture based on groups
       if (groupList?.length > 1) { // Fix for users who are only in the Network Members group
         const filteredPictures = Object.entries(groupDefaultPictures)
@@ -111,13 +109,6 @@ function ContactCard({ user, groupColors }) {
           Math.random() * filteredPictures?.length
         );
         setDefaultPicture(filteredPictures[randomIndex]);
-
-        // Set color based on the selected picture
-        const selectedGroup = Object.keys(groupDefaultPictures).find(
-          (group) =>
-            groupDefaultPictures[group] === filteredPictures[randomIndex]
-        );
-        const selectedColor = groupColors[selectedGroup];
         set_color(groupColors[groupList[0]]);
       } else {
         setDefaultPicture(groupDefaultPictures["Student"]);
@@ -147,7 +138,10 @@ function ContactCard({ user, groupColors }) {
 
       setOrgElements(tempOrgElements);
     }
-  }, []);
+  }, [user.settings.showfullname, user.fullname,
+    user.showlocation, user.groups, user.picture,
+    user.organizations, user.username, user.city,
+    user.county, groupColors, groupDefaultPictures]);
 
   return (
     <>
@@ -162,9 +156,10 @@ function ContactCard({ user, groupColors }) {
             <img
               src={`${config.NODEBB_URL}${picture}`}
               style={{ border: "2px solid" + color }}
+              alt="Profile"
             />
           ) : (
-            <img src={defaultPicture} style={{ border: "2px solid" + color }} />
+            <img src={defaultPicture} style={{ border: "2px solid" + color }} alt="Profile" />
           )}
         </div>
 

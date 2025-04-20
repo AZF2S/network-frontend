@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import "./ContactUs.css";
 import { useEffect, useState } from "react";
 import CardButton from "../components/CardButton.js";
-import { contactApi, progressApi } from "../api";
+import { contactApi } from "../api";
 
 function ContactUs() {
   const [fullName, set_fullName] = useState("");
@@ -11,20 +11,6 @@ function ContactUs() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
-
-  useEffect(() => {
-    const updateChecklistStep = async () => {
-      try {
-        await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait for 1 second
-        await progressApi.updateChecklistStep("contactUs");
-        console.log("Checklist step updated successfully");
-      } catch (error) {
-        console.error("Error updating checklist step:", error);
-      }
-    };
-  
-    updateChecklistStep();
   }, []);
 
   const navigate = useNavigate();
