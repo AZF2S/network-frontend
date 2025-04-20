@@ -233,7 +233,10 @@ const Navbar = (props) => {
     pendingOrgs,
     remainingSteps,
     clearNotification,
-    getTotalNotifications
+    getTotalNotifications,
+    isMemberFormDisabled,
+    checkedMembershipInfo,
+    setMembershipInfoChecked
   } = useNotifications();
 
   // Route value effect
