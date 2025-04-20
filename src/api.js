@@ -2,8 +2,8 @@ import axios from 'axios';
 import config from './config';
 
 // Storage keys
-const USER_STORAGE_KEY = 'userData';
-const CSRF_TOKEN_KEY = 'csrfToken';
+export const USER_STORAGE_KEY = 'user';
+export const CSRF_TOKEN_KEY = 'csrf';
 
 // Base API - no credentials by default
 const api = axios.create({
