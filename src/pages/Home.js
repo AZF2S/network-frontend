@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import CardButton from "../components/CardButton.js";
 
 function Home() {
-  console.log(config.DOMAIN);
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);

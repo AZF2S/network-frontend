@@ -15,7 +15,7 @@ function validateEnvVars() {
 }
 
 validateEnvVars();
-console.log(process.env.REACT_APP_DOMAIN);
+console.log(`Config parsed domain REACT_APP_DOMAIN ${process.env.REACT_APP_DOMAIN}`);
 
 const config = {
     PROTOCOL: process.env.REACT_APP_PROTOCOL,

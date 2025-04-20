@@ -43,8 +43,21 @@ export const authApi = {
         return response;
     },
     getCurrentUser: () => {
-        const user = JSON.parse(localStorage.getItem(USER_STORAGE_KEY));
-        return authenticatedApi.get(`/user/${user?.uid}`);
+        try {
+            const userData = localStorage.getItem(USER_STORAGE_KEY);
+            if (!userData) {
+                return Promise.reject({ message: 'No user data in localStorage' });
+            }
+
+            const user = JSON.parse(userData);
+            if (!user || !user.uid) {
+                return Promise.reject({ message: 'Invalid user data in localStorage' });
+            }
+
+            return authenticatedApi.get(`/user/${user.uid}`);
+        } catch (error) {
+            return Promise.reject({ message: 'Error parsing user data', originalError: error });
+        }
     },
     isAdmin: () => authenticatedApi.get('/isAdmin'),
     logout: () => authenticatedApi.post('/user/logout').then(() => {

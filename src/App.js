@@ -42,18 +42,52 @@ function App() {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        const { data: userData } = await authApi.getCurrentUser();
-        setIsAuthenticated(true);
-        setUser(userData);
-
-        if (userData.recentlyverified) {
-          setShowMembershipAcceptance(true);
+        // Check if there's potentially a user in localStorage first
+        const storedUserData = localStorage.getItem('userData');
+        if (!storedUserData) {
+          // No stored user data - handle as guest session
+          setIsAuthenticated(false);
+          setUser(null);
+          setIsAdmin(false);
+          console.log("Welcome, guest!");
+          return;
         }
 
+        // Try to parse the stored user data
         try {
-          await authApi.isAdmin();
-          setIsAdmin(true);
-        } catch (error) {
+          const storedUser = JSON.parse(storedUserData);
+          if (!storedUser || !storedUser.uid) {
+            // Invalid user data - treat as guest
+            console.log("Invalid stored user data");
+            localStorage.removeItem('userData');
+            setIsAuthenticated(false);
+            setUser(null);
+            setIsAdmin(false);
+            return;
+          }
+
+          // We have valid stored user data, try to validate with server
+          const { data: userData } = await authApi.getCurrentUser();
+          setIsAuthenticated(true);
+          setUser(userData);
+
+          if (userData.recentlyverified) {
+            setShowMembershipAcceptance(true);
+          }
+
+          // Check if user is admin
+          try {
+            await authApi.isAdmin();
+            setIsAdmin(true);
+          } catch (adminError) {
+            console.log("User is not an admin");
+            setIsAdmin(false);
+          }
+        } catch (parseError) {
+          console.log("Error parsing stored user data:", parseError);
+          localStorage.removeItem('userData');
+          setIsAuthenticated(false);
+          setUser(null);
           setIsAdmin(false);
         }
       } catch (error) {
@@ -61,6 +95,9 @@ function App() {
         setIsAuthenticated(false);
         setUser(null);
         setIsAdmin(false);
+        // Clean up localStorage on auth failure
+        localStorage.removeItem('userData');
+        localStorage.removeItem('csrfToken');
       }
     };
 
