@@ -24,11 +24,11 @@ import AdminPanel from "./pages/AdminPanel";
 import RenewMembership from "./pages/RenewMembership";
 import MembershipAcceptanceDialog from "./components/Dialogs/MembershipAcceptance";
 import { DialogProvider } from "./utils/DialogProvider";
-import { RouteGuard } from "./utils/RouteGuard"; // Kept original name
+import { RouteGuard } from "./contexts/AuthContext";
 
 function App() {
   const [open, setOpen] = useState(false);
-  const { user, showMembershipAcceptance, setShowMembershipAcceptance } = useAuth();
+  const { showMembershipAcceptance, setShowMembershipAcceptance } = useAuth();
 
   return (
       <div className="relative min-h-screen">
@@ -51,72 +51,48 @@ function App() {
               <Route path="/sign-up" element={<SignUp />} />
               <Route path="/thank-you-contact-us" element={<ThankYouContactUs />} />
 
-              {/* Signed in, email verified (todo: split these up after adding email validation page */}
+              {/* Email Verified Routes (todo: split these up after adding email validation page */}
               <Route path="/become-a-member" element={
-                <RouteGuard user={user} requires="isAuthenticated" uri="/login">
-                  <RouteGuard user={user} requires="isEmailVerified" uri="/">
-                    <BecomeMember />
-                  </RouteGuard>
+                <RouteGuard uri="/login" requires="isEmailVerified">
+                  <BecomeMember />
                 </RouteGuard>
               } />
 
               <Route path="/membership-form" element={
-                <RouteGuard user={user} requires="isAuthenticated" uri="/login">
-                  <RouteGuard user={user} requires="isEmailVerified" uri="/">
-                    <MembershipForm />
-                  </RouteGuard>
+                <RouteGuard uri="/login" requires="isEmailVerified">
+                  <MembershipForm />
+                </RouteGuard>
+              } />
+
+              {/* Member Routes */}
+              <Route path="/submit-a-resource" element={
+                <RouteGuard uri="/become-a-member" requires="isMember">
+                  <SubmitResource />
                 </RouteGuard>
               } />
 
               <Route path="/renew-membership" element={
-                <RouteGuard user={user} requires="isAuthenticated" uri="/login">
-                  <RouteGuard user={user} requires="isEmailVerified" uri="/">
-                    <RenewMembership />
-                  </RouteGuard>
+                <RouteGuard uri="/become-a-member" requires="isMember">
+                  <RenewMembership />
                 </RouteGuard>
               } />
 
-              {/* Is member */}
               <Route path="/contact-list" element={
-                <RouteGuard user={user} requires="isAuthenticated" uri="/login">
-                  <RouteGuard user={user} requires="isEmailVerified" uri="/">
-                    <RouteGuard user={user} requires="isMember" uri="/become-a-member">
-                      <ContactList />
-                    </RouteGuard>
-                  </RouteGuard>
+                <RouteGuard uri="/become-a-member" requires="isMember">
+                  <ContactList />
                 </RouteGuard>
               } />
 
               <Route path="/forum" element={
-                <RouteGuard user={user} requires="isAuthenticated" uri="/login">
-                  <RouteGuard user={user} requires="isEmailVerified" uri="/">
-                    <RouteGuard user={user} requires="isMember" uri="/become-a-member">
-                      <Forum />
-                    </RouteGuard>
-                  </RouteGuard>
-                </RouteGuard>
-              } />
-
-              <Route path="/submit-a-resource" element={
-                <RouteGuard user={user} requires="isAuthenticated" uri="/login">
-                  <RouteGuard user={user} requires="isEmailVerified" uri="/">
-                    <RouteGuard user={user} requires="isMember" uri="/become-a-member">
-                      <SubmitResource />
-                    </RouteGuard>
-                  </RouteGuard>
+                <RouteGuard uri="/become-a-member" requires="isMember">
+                  <Forum />
                 </RouteGuard>
               } />
 
               {/* Admin Routes */}
               <Route path="/admin-panel" element={
-                <RouteGuard user={user} requires="isAuthenticated" uri="/login">
-                  <RouteGuard user={user} requires="isEmailVerified" uri="/">
-                    <RouteGuard user={user} requires="isMember" uri="/become-a-member">
-                      <RouteGuard user={user} requires="isAdmin" uri="/login">
-                        <AdminPanel />
-                      </RouteGuard>
-                    </RouteGuard>
-                  </RouteGuard>
+                <RouteGuard uri="/" requires="isAdmin">
+                  <AdminPanel />
                 </RouteGuard>
               } />
 

@@ -222,7 +222,7 @@ const Navbar = (props) => {
   const isTheWorldsSmallestScreen = useMediaQuery("(max-width: 410px)");
 
   // Hooks
-  const { isAuthenticated, setIsAuthenticated, user, isAdmin, setIsAdmin, setUser } = useAuth();
+  const { isAuthenticated, user, isAdmin, logout } = useAuth();
   const { requestDialog } = useDialog();
   const navigate = useNavigate();
 
@@ -349,15 +349,8 @@ const Navbar = (props) => {
       };
 
       const handleLogout = async () => {
-        try {
-          await accountApi.logout();
-          setIsAuthenticated(false);
-          setUser(null);
-          setIsAdmin(false);
-          navigate("/");
-        } catch (error) {
-          console.error("Error logging out:", error);
-        }
+        await logout();
+        navigate("/");
       };
 
       if (type === "link") {
