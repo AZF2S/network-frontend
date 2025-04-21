@@ -119,6 +119,7 @@ function Login() {
       // Store user data in localStorage
       localStorage.setItem('user', JSON.stringify({
         username: loginResponse.user.username,
+        userslug: loginResponse.user.username, // tech debt
         uid: loginResponse.user.uid,
         isAdmin: isUserAdmin
       }));
