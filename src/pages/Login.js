@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const { setIsAuthenticated, setUser, setIsAdmin } = useAuth();
+  const { setUser } = useAuth();
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
@@ -123,10 +123,8 @@ function Login() {
         isAdmin: isUserAdmin
       }));
 
-      // Update authentication state
-      setIsAuthenticated(true);
+      // Set user with the response data
       setUser(loginResponse.user);
-      setIsAdmin(isUserAdmin);
 
       // Navigate to home page
       navigate("/");
@@ -144,8 +142,6 @@ function Login() {
         // Error in setting up the request
         setErrorMessage(error.message || "An error occurred during login");
       }
-
-      setIsAuthenticated(false);
     } finally {
       setIsSigningIn(false);
     }
