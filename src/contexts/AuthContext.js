@@ -24,14 +24,15 @@ const clearAuthCache = () => {
   };
 };
 
-const checkAuth = async (uid) => {
+const checkAuth = async (user) => {
   const now = Date.now();
   if (now - authCache.timestamp < TTL) {
     return authCache;
   }
 
   try {
-    const userResponse = await authApi.getCurrentUser(uid);
+    // Pass user id directly from the context instead of getting from localStorage
+    const userResponse = await authApi.getCurrentUser(user?.uid);
 
     const isAuthenticated = !!userResponse.data;
     const isEmailVerified = userResponse.data?.["email:confirmed"] === 1;
@@ -39,7 +40,7 @@ const checkAuth = async (uid) => {
 
     let isAdmin = false;
     try {
-      const adminResponse = await authApi.isAdmin(uid);
+      const adminResponse = await authApi.isAdmin();
       isAdmin = adminResponse.status === 200;
     } catch {
       // Failed admin check is expected for most users
@@ -55,7 +56,8 @@ const checkAuth = async (uid) => {
 
     console.log(`auth cache: ${authCache}`);
     return authCache;
-  } catch {
+  } catch (error) {
+    console.error("Auth check error:", error);
     authCache = {
       timestamp: now,
       isAuthenticated: false,
@@ -113,14 +115,15 @@ export function AuthProvider({ children }) {
         return;
       }
 
-      const auth = await checkAuth(user.uid);
+      const auth = await checkAuth(user);
       setAuthState(auth);
       setIsAuthChecking(false);
     };
 
     verifyAuth();
-  }, [user?.uid]);
+  }, [user]);
 
+  // State management moved from api.js to here
   const logout = async () => {
     try {
       await authApi.logout();
@@ -134,7 +137,7 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // New login function that handles the login process and state management
+  // State management moved from api.js to here
   const login = async (username, password) => {
     try {
       setLoginState({
@@ -184,22 +187,28 @@ export function AuthProvider({ children }) {
         return { success: false };
       }
 
-      // Validate admin status
-      const isUserAdmin = Array.isArray(loginResponse.user.groupTitleArray) &&
-          loginResponse.user.groupTitleArray.includes("administrators");
+      // Extract csrfToken and user data
+      const { csrfToken, ...userData } = loginResponse.user;
 
-      // Store user data in localStorage
-      const userData = {
-        username: loginResponse.user.username,
-        userslug: loginResponse.user.username, // tech debt
-        uid: loginResponse.user.uid,
-        isAdmin: isUserAdmin
+      // Store csrfToken in localStorage - the interceptor in api.js will use it automatically
+      localStorage.setItem(CSRF_TOKEN_KEY, csrfToken);
+
+      // Create explicit user object with required fields
+      const user = {
+        uid: userData.uid,
+        username: userData.username,
+        email: userData.email,
+        'email:confirmed': userData['email:confirmed'],
+        memberstatus: userData.memberstatus,
+        // Include other fields from userData
+        ...userData
       };
 
-      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
+      // Store user in localStorage
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
 
-      // Set user with the response data
-      setUser(loginResponse.user);
+      // Set user in context
+      setUser(user);
 
       // Reset login state
       setLoginState({

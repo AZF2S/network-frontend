@@ -1,7 +1,7 @@
 import axios from 'axios';
 import config from './config';
 
-// Storage keys
+// Storage keys for external use
 export const USER_STORAGE_KEY = 'user';
 export const CSRF_TOKEN_KEY = 'csrf';
 
@@ -22,6 +22,8 @@ const authenticatedApi = axios.create({
         'Cache-Control': 'no-cache'
     }
 });
+
+// Add the interceptor only once, and it will use the token from localStorage as needed
 authenticatedApi.interceptors.request.use(config => {
     const csrfToken = localStorage.getItem(CSRF_TOKEN_KEY);
     if (csrfToken) {
@@ -32,40 +34,23 @@ authenticatedApi.interceptors.request.use(config => {
 
 // Auth-related endpoints
 export const authApi = {
-    // Special case: needs credentials to receive cookie but isn't validated yet
+    // No state management - just return the response
     login: async (credentials) => {
-        const response = await api.post('/user/login', credentials, { withCredentials: true });
-        if (response.data.success) {
-            const { csrfToken, ...userData } = response.data.user;
-            localStorage.setItem(CSRF_TOKEN_KEY, csrfToken);
-            localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
-        }
-        return response;
+        return api.post('/user/login', credentials, { withCredentials: true });
     },
-    getCurrentUser: () => {
-        try {
-            const userData = localStorage.getItem(USER_STORAGE_KEY);
-            if (!userData) {
-                return Promise.reject({ message: 'No user data in localStorage' });
-            }
 
-            const user = JSON.parse(userData);
-            if (!user || !user.uid) {
-                return Promise.reject({ message: 'Invalid user data in localStorage' });
-            }
-
-            return authenticatedApi.get(`/user/${user.uid}`);
-        } catch (error) {
-            return Promise.reject({ message: 'Error parsing user data', originalError: error });
+    getCurrentUser: (userId) => {
+        if (!userId) {
+            return Promise.reject({ message: 'No user ID provided' });
         }
+        return authenticatedApi.get(`/user/${userId}`);
     },
+
     isAdmin: () => authenticatedApi.get('/isAdmin'),
-    logout: () => authenticatedApi.post('/user/logout').then(() => {
-        localStorage.removeItem(CSRF_TOKEN_KEY);
-        localStorage.removeItem(USER_STORAGE_KEY);
-    }),
+
+    logout: () => authenticatedApi.post('/user/logout'),
+
     signUp: (userData) => api.post('/user/sign-up', userData),
-    checkAccountAvailable: (data) => api.post('/user/is-available', data),
     sendNewUserEmail: (data) => api.post('/user/new-user-email', data),
     updateNewUser: (data) => api.put('/user/new-user', data)
 };
@@ -79,20 +64,13 @@ export const mapApi = {
 // Account related endpoints - all protected
 export const accountApi = {
     updateUser: (updateData) => authenticatedApi.put('/user', updateData),
-    getUserChats: () => authenticatedApi.get(`${config.NODEBB_URL}/api/v3/chats`),
-    getUserTopics: (userslug) => authenticatedApi.get(`${config.NODEBB_URL}/api/user/${userslug}/topics`),
-    getUserProfile: (userslug) => authenticatedApi.get(`${config.NODEBB_URL}/api/user/${userslug}`),
-    logout: () => authApi.logout(),
-    getChatMessages: (roomId) => authenticatedApi.get(`${config.NODEBB_URL}/api/v3/chats/${roomId}/messages`),
-    getNotifications: () => authenticatedApi.get('/notifications'),
+    getNotifications: () => authenticatedApi.get('/user/notifications'),
     getUserProfilePicture: (userslug) => authenticatedApi.get(`${config.NODEBB_URL}/api/user/${userslug}/picture`),
     getUserOrganizations: () => authenticatedApi.get('/verified-organizations'),
     getPendingMembers: () => authenticatedApi.get('/pending-members'),
     updateRecentlyVerified: (value) => authenticatedApi.put('/update-recently-verified', { value }),
     getUserSettings: () => authenticatedApi.get('/user-settings'),
     updateUserSettings: (data) => authenticatedApi.put('/user-settings', data),
-    submitForm: (user) => authenticatedApi.put('/submit-form', { user }),
-    renewMembership: (user) => authenticatedApi.put('/renew-membership', { user }),
     deleteMembership: () => authenticatedApi.put('/delete-membership')
 };
 
@@ -133,27 +111,6 @@ export const organizationApi = {
     removeMember: (data) => authenticatedApi.put('/remove-member', data),
     getPendingOrganizations: () => authenticatedApi.get('/pending-organizations'),
     getVerifiedOrganizations: () => authenticatedApi.get('/verified-organizations'),
-    getUserOrgs: (orgs) => authenticatedApi.post('/user-orgs', orgs)
-};
-
-// Admin related endpoints - all protected
-export const adminApi = {
-    getPendingOrganizations: () => authenticatedApi.get('/pending-organizations'),
-    getPendingMembers: () => authenticatedApi.get('/pending-members'),
-    getVerifiedMembers: () => authenticatedApi.get('/verified-members'),
-    acceptMembership: (data) => authenticatedApi.put('/accept-membership', data),
-    denyMembership: (data) => authenticatedApi.put('/deny-membership', data),
-    getGroupColors: () => authenticatedApi.get('/group-colors'),
-    getContactListUsers: () => authenticatedApi.post('/contact-list-users', {})
-};
-
-// Forum related endpoints - all protected
-export const forumApi = {
-    getConfig: () => authenticatedApi.get(`${config.NODEBB_URL}/api/config`),
-    updateSettings: (data) => authenticatedApi.put(`${config.NODEBB_URL}/api/v3/users/${data.uid}`, data),
-    createChatRoom: (data) => authenticatedApi.post(`${config.NODEBB_URL}/api/v3/chats`, data),
-    sendMessage: (roomId, message) => authenticatedApi.post(`${config.NODEBB_URL}/api/v3/chats/${roomId}`, { message }),
-    leaveChatRoom: (roomId, data) => authenticatedApi.delete(`${config.NODEBB_URL}/api/v3/chats/${roomId}/users`, { data })
 };
 
 // Contact related endpoints - public
