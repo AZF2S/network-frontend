@@ -16,7 +16,6 @@ const useNotifications = () => {
     });
     const [pendingMembers, setPendingMembers] = useState(0);
     const [pendingOrgs, setPendingOrgs] = useState(0);
-    const [remainingSteps, setRemainingSteps] = useState(0);
     const [recentlyVerified, setRecentlyVerified] = useState(false);
 
     // Fetch initial notifications
@@ -56,22 +55,6 @@ const useNotifications = () => {
                 Membership: 1,
             }));
         }
-    }, [user]);
-
-    // Fetch remaining steps
-    useEffect(() => {
-        const fetchRemainingSteps = async () => {
-            if (!user) return;
-
-            try {
-                const steps = await accountApi.getRemainingSteps();
-                setRemainingSteps(steps);
-            } catch (error) {
-                console.error("Error fetching remaining steps:", error);
-            }
-        };
-
-        fetchRemainingSteps();
     }, [user]);
 
     // Handle admin-specific notifications
@@ -154,7 +137,6 @@ const useNotifications = () => {
         notifications,
         pendingMembers,
         pendingOrgs,
-        remainingSteps,
         clearNotification,
         getTotalNotifications,
         recentlyVerified,
