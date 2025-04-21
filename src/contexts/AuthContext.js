@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { authApi, USER_STORAGE_KEY, CSRF_TOKEN_KEY } from "../api";
-import {Navigate} from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 const AuthContext = createContext(undefined);
 
@@ -53,7 +53,7 @@ const checkAuth = async (uid) => {
       isAdmin
     };
 
-    console.log(`auth cache: ${authCache}`)
+    console.log(`auth cache: ${authCache}`);
     return authCache;
   } catch {
     authCache = {
@@ -63,7 +63,7 @@ const checkAuth = async (uid) => {
       isMember: false,
       isEmailVerified: false
     };
-    console.log(`error auth cache: ${authCache}`)
+    console.log(`error auth cache: ${authCache}`);
     return authCache;
   }
 };
@@ -78,6 +78,10 @@ export function AuthProvider({ children }) {
   const [showMembershipAcceptance, setShowMembershipAcceptance] = useState(false);
   const [authState, setAuthState] = useState(authCache);
   const [isAuthChecking, setIsAuthChecking] = useState(true);
+  const [loginState, setLoginState] = useState({
+    isSigningIn: false,
+    errorMessage: "",
+  });
 
   // Check for user on initial load - only from localStorage
   useEffect(() => {
@@ -130,11 +134,113 @@ export function AuthProvider({ children }) {
     }
   };
 
+  // New login function that handles the login process and state management
+  const login = async (username, password) => {
+    try {
+      setLoginState({
+        isSigningIn: true,
+        errorMessage: "",
+      });
+
+      if (!username || !password) {
+        setLoginState({
+          isSigningIn: false,
+          errorMessage: "Please enter both username and password",
+        });
+        return { success: false };
+      }
+
+      // Call the API with properly formatted object
+      const data = { username, password };
+      const response = await authApi.login(data);
+
+      // Validate the response exists
+      if (!response || !response.data) {
+        console.error('Login response is invalid:', response);
+        setLoginState({
+          isSigningIn: false,
+          errorMessage: "Unexpected server response. Please try again.",
+        });
+        return { success: false };
+      }
+
+      const loginResponse = response.data;
+
+      if (!loginResponse.success) {
+        setLoginState({
+          isSigningIn: false,
+          errorMessage: loginResponse.message || "Login failed",
+        });
+        return { success: false };
+      }
+
+      // Check if user data exists in the response
+      if (!loginResponse.user) {
+        console.error('User data missing in login response');
+        setLoginState({
+          isSigningIn: false,
+          errorMessage: "Login succeeded but user data is missing",
+        });
+        return { success: false };
+      }
+
+      // Validate admin status
+      const isUserAdmin = Array.isArray(loginResponse.user.groupTitleArray) &&
+          loginResponse.user.groupTitleArray.includes("administrators");
+
+      // Store user data in localStorage
+      const userData = {
+        username: loginResponse.user.username,
+        userslug: loginResponse.user.username, // tech debt
+        uid: loginResponse.user.uid,
+        isAdmin: isUserAdmin
+      };
+
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
+
+      // Set user with the response data
+      setUser(loginResponse.user);
+
+      // Reset login state
+      setLoginState({
+        isSigningIn: false,
+        errorMessage: "",
+      });
+
+      return { success: true };
+    } catch (error) {
+      console.error("Login error:", error);
+
+      // Handle different error types appropriately
+      let errorMessage;
+
+      if (error.response) {
+        // Server responded with an error status code
+        errorMessage = error.response.data?.message || "Invalid username or password";
+      } else if (error.request) {
+        // Request was made but no response received
+        errorMessage = "No response from server. Please try again later.";
+      } else {
+        // Error in setting up the request
+        errorMessage = error.message || "An error occurred during login";
+      }
+
+      setLoginState({
+        isSigningIn: false,
+        errorMessage,
+      });
+
+      return { success: false };
+    }
+  };
+
   const value = {
     user,
     setUser,
     isLoading,
     logout,
+    login,
+    loginState,
     showMembershipAcceptance,
     setShowMembershipAcceptance,
     isAuthChecking,

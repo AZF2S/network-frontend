@@ -1,5 +1,4 @@
 import "./Login.css";
-import { authApi } from "../api";
 import { useEffect, useState } from "react";
 import PrimaryButton from "../components/PrimaryButton.js";
 import { useAuth } from "../contexts/AuthContext";
@@ -10,9 +9,8 @@ import { useNavigate } from "react-router-dom";
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const { setUser } = useAuth();
-  const [isSigningIn, setIsSigningIn] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const { login, loginState } = useAuth();
+  const { isSigningIn, errorMessage } = loginState;
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,7 +30,6 @@ function Login() {
       } else {
         if (input) input.style.borderColor = "#666";
         if (label) label.style.color = "#000000de";
-        setErrorMessage("");
       }
     };
 
@@ -73,90 +70,17 @@ function Login() {
     };
   }, []);
 
-  const loginAttempt = async () => {
-    try {
-      setIsSigningIn(true);
-      setErrorMessage("");
-
-      if (!username || !password) {
-        setErrorMessage("Please enter both username and password");
-        setIsSigningIn(false);
-        return;
-      }
-
-      // Call the API with properly formatted object
-      const data = { username, password };
-      const response = await authApi.login(data);
-
-      // Validate the response exists
-      if (!response || !response.data) {
-        console.error('Login response is invalid:', response);
-        setErrorMessage("Unexpected server response. Please try again.");
-        setIsSigningIn(false);
-        return;
-      }
-
-      const loginResponse = response.data;
-
-      if (!loginResponse.success) {
-        setErrorMessage(loginResponse.message || "Login failed");
-        setIsSigningIn(false);
-        return;
-      }
-
-      // Check if user data exists in the response
-      if (!loginResponse.user) {
-        console.error('User data missing in login response');
-        setErrorMessage("Login succeeded but user data is missing");
-        setIsSigningIn(false);
-        return;
-      }
-
-      // Validate admin status
-      const isUserAdmin = Array.isArray(loginResponse.user.groupTitleArray) &&
-          loginResponse.user.groupTitleArray.includes("administrators");
-
-      // Store user data in localStorage
-      localStorage.setItem('user', JSON.stringify({
-        username: loginResponse.user.username,
-        userslug: loginResponse.user.username, // tech debt
-        uid: loginResponse.user.uid,
-        isAdmin: isUserAdmin
-      }));
-
-      // Set user with the response data
-      setUser(loginResponse.user);
-
-      // Navigate to home page
+  const handleLogin = async () => {
+    const result = await login(username, password);
+    if (result.success) {
       navigate("/");
-    } catch (error) {
-      console.error("Login error:", error);
-
-      // Handle different error types appropriately
-      if (error.response) {
-        // Server responded with an error status code
-        setErrorMessage(error.response.data?.message || "Invalid username or password");
-      } else if (error.request) {
-        // Request was made but no response received
-        setErrorMessage("No response from server. Please try again later.");
-      } else {
-        // Error in setting up the request
-        setErrorMessage(error.message || "An error occurred during login");
-      }
-    } finally {
-      setIsSigningIn(false);
     }
   };
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      // We intentionally don't await this promise here
-      // since we're using UI state (isSigningIn) to manage the flow
-      loginAttempt().catch(err => {
-        console.error("Unhandled error in login process:", err);
-        setIsSigningIn(false);
-      });
+      handleLogin();
     }
   };
 
@@ -212,16 +136,7 @@ function Login() {
             <PrimaryButton
                 backgroundColor="#668c3c"
                 text={isSigningIn ? "Signing in..." : "Log in"}
-                onClick={() => {
-                  if (!isSigningIn) {
-                    // We intentionally don't await this promise here
-                    // since we're using UI state (isSigningIn) to manage the flow
-                    loginAttempt().catch(err => {
-                      console.error("Unhandled error in login process:", err);
-                      setIsSigningIn(false);
-                    });
-                  }
-                }}
+                onClick={handleLogin}
                 disabled={isSigningIn}
             />
           </div>
