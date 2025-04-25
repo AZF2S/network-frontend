@@ -43,7 +43,7 @@ export const authApi = {
         if (!userId) {
             return Promise.reject({ message: 'No user ID provided' });
         }
-        return authenticatedApi.get(`/user/${userId}`);
+        return authenticatedApi.get(`/user?uid=${userId}`);
     },
 
     isAdmin: () => authenticatedApi.get('/isAdmin'),
